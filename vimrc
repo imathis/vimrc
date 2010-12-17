@@ -5,40 +5,72 @@
 "   http://github.com/tpope
 
 
-" Use Vim settings, rather then Vi settings (much better!).
-" This must be first, because it changes other options as a side effect.
+" ---------------------------------------------------------------------------
+" General
+" ---------------------------------------------------------------------------
+
+" call pathogen#helptags()
+call pathogen#runtime_append_all_bundles()    " using pathogen for a bunch of plugins
 set nocompatible
-set hidden
-
-" use subdirectories under ~/.vim/bundle
-"
-" Pathogen also provides :call pathogen#helptags() to regenerate helptags for
-" each of the bundled plugins as needed
-"
-" Note that the runtimepath must be set *before* calling filetype plugin on if
-" filetypes are to be recognized by plugins
-call pathogen#runtime_append_all_bundles()
-
-filetype plugin on
-
-:runtime macros/matchit.vim
-
 let mapleader = ","
-imap ;; <Esc>
+set history=1000                              " lots of command line history
+filetype plugin indent on                     " load filetype plugin
+set viminfo='10,\"100,:20,%,n~/.viminfo       " remember certain things when we exit
+set autoread                                  " reload files changed outside of Vim
+set autowrite                                 " some commands should cause an automatic write
 
-set autoindent
-set autowrite
-set expandtab " expand tabs to spaces
+
+" ----------------------------------------------------------------------------
+"  UI
+" ----------------------------------------------------------------------------
+set ruler                             " show the cursor position all the time
+set backspace=start,indent,eol        " allow backspacing over anything in insert mode
+set guioptions=eg                     " disable scrollbars, etc
+"set wm=2                              " wrap margin on the right
+let NERDTreeWinSize=31                " how wide nerdtree ought to be
+set guifont=Monaco:h14
+set antialias
+
+" ----------------------------------------------------------------------------
+"  Visual cues
+" ----------------------------------------------------------------------------
+set incsearch               " do incremental searching
+set laststatus=2            " always show the status line
+set nohlsearch              " don't highlight searches
+set visualbell              " quiet
+set noerrorbells            " quiet
+set number                  " show line numbers
+
+
+" ----------------------------------------------------------------------------
+"  Text formatting
+" ----------------------------------------------------------------------------
+set autoindent              " automatically indent new lines
+set expandtab               " expand tabs to spaces
+set nowrap                  " do not wrap lines
+set softtabstop=2           " yep, two
 set shiftwidth=2
-set tabstop=2
-set smarttab
-set wildmode=list:longest " helpful tab completion
-set backspace=start,indent,eol " allow delete across lines
-set hlsearch
-set number
-set history=1000
+set tabstop=4
+set nosmarttab              " no tabs, thanks.
+set expandtab               " expand tabs to spaces
+
+
+" ----------------------------------------------------------------------------
+"  Backups
+" ----------------------------------------------------------------------------
+set nobackup                           " do not keep backups after close
+set nowritebackup                      " do not keep a backup while working
+set noswapfile                         " don't keep swp files either
+set backupdir=~/.vim/backups           " store backups under ~/.vim/backup
+set backupcopy=yes                     " keep attributes of original file
+set backupskip=/tmp/*,$TMPDIR/*,$TMP/*,$TEMP/*
+set directory=~/.vim/tmp               " where to keep swp files
 
 syntax enable
+
+" Spell check on
+set spell
+set spelllang=en_us
 
 " strip trailing whitespace
 autocmd BufWritePre * :%s/\s\+$//e
@@ -53,25 +85,53 @@ autocmd BufReadPost *
   \   exe "normal! g`\"" |
   \ endif
 
-" NERDtree plugin
+
+" ---------------------------------------------------------------------------
+" Mappings
+" ---------------------------------------------------------------------------
+
+" show/hide nerdtree
+nnoremap <leader>d :execute 'NERDTreeToggle ' . getcwd()<CR>
+nnoremap <leader>n :NERDTreeFind<CR>
 " Tree on specified directory/bookmark
 map <leader>nt :NERDTree<space>
-" Open tree on current directory
-map <leader>d :execute 'NERDTreeToggle ' . getcwd()<CR>
 " Reveal current file in tree
 map <leader>R :NERDTreeFind<CR>
 
+" edit vimrc
+nmap <leader>v :sp ~/.vimrc<CR><C-W>_
+nmap <leader>V :source ~/.vimrc<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded'"<CR><leader>d<leader>d<C-L>
 
-" Tags
-" TODO Learn to use tags beyond the TlistToggle...
-" See http://sites.google.com/site/daveparillo/software-development/vim/ctags
-"set tags=./tags
-"map <leader>gt :execute
+" move between windows
+nnoremap <C-J> <C-W>j
+nnoremap <C-K> <C-W>k
+nnoremap <C-H> <C-W>h
+nnoremap <C-L> <C-W>l
+
+" move window split position
+nnoremap <C-W>H <C-A-H>
+nnoremap <C-W>J <C-A-J>
+nnoremap <C-W>K <C-A-K>
+nnoremap <C-W>L <C-A-L>
+
+" resize windows
+nmap <C-Left> <C-W><<C-W><
+nmap <C-Right> <C-W>><C-W>>
+nmap <C-Up> <C-W>+<C-W>+
+nmap <C-Down> <C-W>-<C-W>-
+
+" easily back to normal mode
+"inoremap ;; <Esc>
+"inoremap ¬ <Esc>
 
 " Taglist plugin
 let Tlist_Show_One_File = 1
 map <leader>S :TlistToggle<CR><C-W>h
-let tlist_javascript_settings='javascript;v:globals;c:classes;f:functions;m:methods;p:properties;r:protoype'
+
+" command-t plugin
+nnoremap <leader>f :CommandT<CR>
+nnoremap <leader>F :CommandTFlush<CR>:CommandT<CR>
+set wildignore+=vendor/plugins/**,vendor/linked_gems/**,vendor/gems/**,vendor/rails/**,coverage/**
 
 " Set options if a gui is running
 if has("gui_running")
@@ -81,32 +141,51 @@ endif
 
 colorscheme desert256
 
+
+" ---------------------------------------------------------------------------
+"  Status line customization
+" ---------------------------------------------------------------------------
 set statusline=
 set statusline+=%-3.3n\                      " buffer number
 set statusline+=%f\                          " filename
 set statusline+=%h%m%r%w                     " status flags
 set statusline+=\[%{strlen(&ft)?&ft:'none'}] " file type
 set statusline+=%=                           " right align remainder
-set statusline+=0x%-8B                       " character value
 set statusline+=%-14(%l,%c%V%)               " line, character
 set statusline+=%<%P                         " file position
+set statusline=
 
-
-" ---- Opening Files ----
-let g:fuf_file_exclude = '\v\~$|\.(o|exe|dll|bak|swp|log|DS_Store|gdbinit)$|(^|[/\\])\.(hg|git|bzr)($|[/\\])|vendor|tmp|\.(sass-cache|gdb|bundle)'
-let g:fuf_enumerating_limit = 70
-let g:fuf_maxMenuWidth = 150
-map <leader>b :FufBuffer<CR>
-map <leader>t :FufFile<CR>
-map <leader>q :FufQuickfix<CR>
-
-" Store temporary files in a central spot
-set backupdir=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
-set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+" ---------------------------------------------------------------------------
+"  Jump to last saved position of buffer when re-opening
+" ---------------------------------------------------------------------------
+augroup JumpCursorOnEdit
+ au!
+ autocmd BufReadPost *
+ \ if expand("<afile>:p:h") !=? $TEMP |
+ \ if line("'\"") > 1 && line("'\"") <= line("$") |
+ \ let JumpCursorOnEdit_foo = line("'\"") |
+ \ let b:doopenfold = 1 |
+ \ if (foldlevel(JumpCursorOnEdit_foo) > foldlevel(JumpCursorOnEdit_foo - 1)) |
+ \ let JumpCursorOnEdit_foo = JumpCursorOnEdit_foo - 1 |
+ \ let b:doopenfold = 2 |
+ \ endif |
+ \ exe JumpCursorOnEdit_foo |
+ \ endif |
+ \ endif
+ " Need to postpone using "zv" until after reading the modelines.
+ autocmd BufWinEnter *
+ \ if exists("b:doopenfold") |
+ \ exe "normal zv" |
+ \ if(b:doopenfold > 1) |
+ \ exe "+".1 |
+ \ endif |
+ \ unlet b:doopenfold |
+ \ endif
+augroup END
 
 
 " ---- Searching ----
-nmap <leader>f :Ack<space>
+nmap <leader>a :Ack<space>
 nmap <leader>w :Ack<space><cword><CR>
 vmap <leader>w "ry:Ack<space>"<C-r>r"<CR>
 nmap <leader>rw :Ack<space>--type=ruby<space><cword><CR>
@@ -124,3 +203,4 @@ nmap <silent> <leader>s :set nolist!<CR>
 " Scroll the viewport faster
 nnoremap <C-e> 3<C-e>
 nnoremap <C-y> 3<C-y>
+
