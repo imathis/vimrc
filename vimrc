@@ -19,7 +19,6 @@ set viminfo='10,\"100,:20,%,n~/.viminfo       " remember certain things when we 
 set autoread                                  " reload files changed outside of Vim
 set autowrite                                 " some commands should cause an automatic write
 
-
 " ----------------------------------------------------------------------------
 "  UI
 " ----------------------------------------------------------------------------
@@ -203,4 +202,17 @@ nmap <silent> <leader>s :set nolist!<CR>
 " Scroll the viewport faster
 nnoremap <C-e> 3<C-e>
 nnoremap <C-y> 3<C-y>
+
+" ---------------------------------------------------------------------------
+" persistent undo
+" ---------------------------------------------------------------------------
+if v:version >= 703    " Only available in Vim 7.3 or greater
+  set undofile
+  set undodir=~/.vim/.undo
+endif
+
+" ---------------------------------------------------------------------------
+"  Buffers
+" ---------------------------------------------------------------------------
+set hidden                                    " Let me leave buffers even when they're changed.
 
