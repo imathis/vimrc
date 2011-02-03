@@ -130,7 +130,7 @@ map <leader>S :TlistToggle<CR><C-W>h
 " command-t plugin
 nnoremap <leader>f :CommandT<CR>
 nnoremap <leader>F :CommandTFlush<CR>:CommandT<CR>
-set wildignore+=vendor/plugins/**,vendor/linked_gems/**,vendor/gems/**,vendor/rails/**,coverage/**
+set wildignore+=vendor/plugins/**,vendor/linked_gems/**,vendor/gems/**,vendor/rails/**,coverage/**,tmp/sass-cache/**
 
 " Set options if a gui is running
 if has("gui_running")
